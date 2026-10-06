@@ -29,13 +29,23 @@ extension AVCaptureDevice {
     }
     var hdrMode: CameraHDRMode {
         get {
+            guard canConfigureVideoHDR else { return .off }
             if automaticallyAdjustsVideoHDREnabled { return .auto }
             else if isVideoHDREnabled { return .on }
             else { return .off }
         }
         set {
+            guard canConfigureVideoHDR else { return }
             automaticallyAdjustsVideoHDREnabled = newValue == .auto
             if newValue != .auto { isVideoHDREnabled = newValue == .on }
         }
+    }
+
+    private var canConfigureVideoHDR: Bool {
+        #if targetEnvironment(simulator)
+        false
+        #else
+        activeFormat.isVideoHDRSupported
+        #endif
     }
 }
